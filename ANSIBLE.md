@@ -1,6 +1,6 @@
 # ANSIBLE TUTORIAL
 
-## Ansible Installation
+## ANSIBLE INSTALLATION
 
 **Controller node requirements**:
 - Python 3.x
@@ -37,13 +37,13 @@
 **Setting up privilege escalation on managed nodes**:
 - echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible
 
-## ansible.cfg
+## ANSIBLE CONFIGURATION FILE (ansible.cfg)
 
 If Ansible is installed from a package manager: /etc/ansible/ansible.cfg
 If Ansible is installed from pip or from source, you can create it to override default settings in Ansible: 
 - ansible-config init --disabled -t all > ansible.cfg
 
-## Inventory File
+## INVENTORY FILE
 The purpose of the Ansible inventory is to identify hosts that Ansible has to manage.
 Inventory file might by created in Yaml or INI.
 
@@ -173,3 +173,80 @@ To target two inventory sources from the command line:
 ```
 ansible-playbook get_logs.yml -i staging -i production
 ```
+
+ #### Adding variables to inventory
+ You can store variable values that relate to a specific host or group in inventory.
+ 
+ Variables may be added directly to the hosts and groups in your main inventory file. 
+ As you add more and more managed nodes to your Ansible inventory, however, you will likely want to store variables in separate host and group variable files.
+  
+ You can easily assign a variable to a single host, then use it later in playbooks. In INI:
+ 
+ ```
+ [atlanta]
+ host1 http_port=80 maxRequestsPerChild=808
+ host2 http_port=303 maxRequestsPerChild=909
+ ```
+ 
+Unique values like non-standard SSH ports work well as host variables. You can add them to your Ansible inventory by adding the port number after the hostname with a colon:
+```
+badwolf.example.com:5309
+```
+
+Connection variables also work well as host variables:
+
+```
+[targets]
+
+localhost              ansible_connection=local
+other1.example.com     ansible_connection=ssh        ansible_user=myuser
+other2.example.com     ansible_connection=ssh        ansible_user=myotheruser
+```
+#### Assigning a variable to many machines: group variables
+
+If all hosts in a group share a variable value, you can apply that variable to an entire group at once. In INI:
+  
+```
+[atlanta]
+host1
+host2
+
+[atlanta:vars]
+ntp_server=ntp.atlanta.example.com
+proxy=proxy.atlanta.example.com
+```
+
+#### host_vars and group_vars
+Storing separate host and group variables files may help you organize your variable values more easily. 
+Host and group variable files must use YAML syntax. 
+Valid file extensions include ‘.yml’, ‘.yaml’, ‘.json’, or no file extension.
+Ansible loads host and group variable files by searching paths relative to the inventory file or the playbook file.
+
+If your inventory file at /etc/ansible/hosts contains a host named ‘foosball’ that belongs to two groups, ‘raleigh’ and ‘webservers’, that host will use variables at the following locations:
+  
+ ```
+ /etc/ansible/group_vars/raleigh # can optionally end in '.yml', '.yaml', or '.json'
+/etc/ansible/group_vars/webservers
+/etc/ansible/host_vars/foosball
+```
+
+#### Inventory aliases
+Setting the following variables control how Ansible interacts with remote hosts.
+
+- __ansible_connection__: Connection type to the host. This can be the name of any of ansible’s connection plugins. SSH protocol types are smart, ssh or paramiko. The default is smart. 
+  
+- __ansible_host__: The name of the host to connect to, if different from the alias you wish to give to it.
+  
+- __ansible_port__: The connection port number, if not the default (22 for ssh)
+  
+- __ansible_user__: The user name to use when connecting to the host
+  
+- __ansible_password__: The password to use to authenticate to the host (never store this variable in plain text; always use a vault.
+  
+- __ansible_become__: Equivalent to ansible_sudo or ansible_su, allows to force privilege escalation
+
+- __ansible_become_method__: Allows to set privilege escalation method
+
+- __ansible_become_user__: Equivalent to ansible_sudo_user or ansible_su_user, allows to set the user you become through privilege escalation
+
+- __ansible_become_password__: Equivalent to ansible_sudo_password or ansible_su_password, allows you to set the privilege escalation password (never store this variable in plain text; always use a vault.
