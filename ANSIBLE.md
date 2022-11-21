@@ -250,3 +250,58 @@ Setting the following variables control how Ansible interacts with remote hosts.
 - __ansible_become_user__: Equivalent to ansible_sudo_user or ansible_su_user, allows to set the user you become through privilege escalation
 
 - __ansible_become_password__: Equivalent to ansible_sudo_password or ansible_su_password, allows you to set the privilege escalation password (never store this variable in plain text; always use a vault.
+
+## VARIABLES
+
+Ansible uses variables to manage differences between systems.
+With Ansible, you can execute tasks and playbooks on multiple different systems with a single command. 
+To represent the variations among those different systems, you can create variables.
+After you create variables, either by defining them in a file, passing them at the command line, or registering the return value or values of a task as a new variable, you can use those variables in module arguments, in conditional “when” statements, in templates, and in loops.
+  
+A variable name can only include letters, numbers, and underscores. 
+Python keywords or playbook keywords are not valid variable names.
+A variable name cannot begin with a number.
+Variable names can begin with an underscore.
+
+Simple variables combine a variable name with a single value.
+You can define a simple variable using standard YAML syntax. For example:
+```
+remote_install_path: /opt/my_app_config
+```
+After you define a variable, use Jinja2 syntax to reference it. 
+Jinja2 variables use double curly braces.
+
+```
+ansible.builtin.template:
+  src: foo.cfg.j2
+  dest: '{{ remote_install_path }}/foo.cfg'
+```
+If you start a value with {{ foo }}, you must quote the whole expression to create valid YAML syntax.
+
+A list variable combines a variable name with multiple values. 
+The multiple values can be stored as an itemized list or in square brackets [], separated with commas.
+  
+You can define variables with multiple values using YAML lists. For example:
+```
+region:
+  - northeast
+  - southeast
+  - midwest
+```
+When you use variables defined as a list (also called an array), you can use individual, specific fields from that list. The first item in a list is item 0, the second item is item 1. For example:
+```
+region: "{{ region[0] }}"
+```
+A dictionary stores the data in key-value pairs. 
+Usually, dictionaries are used to store related data, such as the information contained in an ID or a user profile.
+You can define more complex variables using YAML dictionaries.
+```
+foo:
+  field1: one
+  field2: two
+```
+When you use variables defined as a key:value dictionary (also called a hash), you can use individual, specific fields from that dictionary using either bracket notation or dot notation:
+```
+foo['field1']
+foo.field1
+```
