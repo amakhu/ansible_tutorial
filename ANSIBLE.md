@@ -43,6 +43,12 @@ If Ansible is installed from a package manager: /etc/ansible/ansible.cfg
 If Ansible is installed from pip or from source, you can create it to override default settings in Ansible: 
 - ansible-config init --disabled -t all > ansible.cfg
 
+```
+ansible-config list  #Lists all configurations
+ansible-config view  # Shows the current config file
+ansible-config dump  # Shows the current settings
+```
+
 ## INVENTORY FILE
 The purpose of the Ansible inventory is to identify hosts that Ansible has to manage.
 Inventory file might by created in Yaml or INI.
